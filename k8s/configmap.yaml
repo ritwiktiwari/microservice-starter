@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  PROJECT_NAME: "Microservice Starter"
+  VERSION: "0.1.0"
+  WORKERS: "4"
+  CORS_ORIGINS: '["*"]'
+  RATE_LIMIT_PER_MINUTE: "60"

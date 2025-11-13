@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration
+  labels:
+    app: microservice
+    component: migration
+spec:
+  template:
+    metadata:
+      labels:
+        app: microservice
+        component: migration
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: migration
+        image: microservice:latest
+        command: ["alembic", "upgrade", "head"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: database-url
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
