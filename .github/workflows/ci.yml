@@ -113,7 +113,9 @@ jobs:
       - name: Run migrations
         env:
           DATABASE_URL: postgresql+asyncpg://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost:5432/${{ env.POSTGRES_DB }}
-        run: make migrate-create MSG="initial tables"
+        run: |
+          make migrate-create MSG="initial tables"
+          make migrate-up
 
       - name: Wait for API
         run: |
