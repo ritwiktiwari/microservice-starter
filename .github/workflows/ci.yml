@@ -100,7 +100,7 @@ jobs:
         run: uv sync
 
       - name: Start services
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Wait for API
         run: |
