@@ -103,32 +103,26 @@ jobs:
       - name: Install dependencies
         run: uv sync --all-extras
 
-      - name: Start services
-        run: docker compose up -d
-
-      - name: Wait for API
-        run: |
-          timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
-
       - name: Run migrations
         env:
-          DATABASE_URL: postgresql+asyncpg://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost:5432/${{ env.POSTGRES_DB }}
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/app
         run: uv run alembic upgrade head
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+      - name: Start API
+        env:
+          DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/app
+          REDIS_URL: redis://localhost:6379/0
+        run: uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 &
 
-      - name: Install Playwright
-        working-directory: tests
+      - name: Install Playwright dependencies
         run: |
+          cd tests
           npm install
-          npx playwright install --with-deps
 
       - name: Run Playwright tests
-        working-directory: tests
-        run: npm test
+        run: |
+          cd tests
+          npm test
 
       - name: Upload test results
         if: always()

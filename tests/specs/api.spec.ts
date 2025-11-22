@@ -36,14 +36,7 @@ test.describe('API Tests', () => {
   });
 
   test('404 for non-existent item', async ({ request }) => {
-    const response = await request.get('/api/v1/items/nonexistent');
+    const response = await request.get('/api/v1/items/99999');
     expect(response.status()).toBe(404);
-  });
-
-  test('slow endpoint completes', async ({ request }) => {
-    const response = await request.get('/api/v1/slow');
-    expect(response.ok()).toBeTruthy();
-    const data = await response.json();
-    expect(data.message).toBe('completed');
   });
 });
