@@ -106,14 +106,18 @@ jobs:
       - name: Start services
         run: docker compose up -d
 
-      - name: Wait for API
+      - name: Wait for database
         run: |
-          timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
+          timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U ${{ env.POSTGRES_USER }}; do sleep 2; done'
 
       - name: Run migrations
         env:
           DATABASE_URL: postgresql+asyncpg://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost:5432/${{ env.POSTGRES_DB }}
-        run: uv run alembic upgrade head
+        run: make migrate-create MSG="initial tables"
+
+      - name: Wait for API
+        run: |
+          timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
