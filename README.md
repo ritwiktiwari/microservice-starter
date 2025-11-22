@@ -42,7 +42,7 @@ Production-ready FastAPI microservice template with modern Python tooling, obser
 - Python 3.13+
 - [uv](https://github.com/astral-sh/uv) - Fast Python package installer
 - [Pyrefly](https://pyrefly.org) - Fast type checker
-- Docker & Docker Compose
+- Docker & Docker Compose (for running services)
 
 ### Installation
 

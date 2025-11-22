@@ -28,7 +28,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Run Pyrefly type check
-        run: pyrefly check app/
+        run: uvx pyrefly check .
 
   test:
     runs-on: ubuntu-latest
@@ -78,7 +78,7 @@ jobs:
         env:
           DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test
           REDIS_URL: redis://localhost:6379/0
-        run: uv run pytest
+        run: make test
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
@@ -87,6 +87,10 @@ jobs:
 
   playwright:
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
     steps:
       - uses: actions/checkout@v4
 
@@ -97,10 +101,21 @@ jobs:
         run: uv python install 3.13
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --all-extras
 
       - name: Start services
-        run: docker-compose up -d
+        run: docker compose up -d
+
+      - name: Wait for database
+        run: |
+          timeout 60 bash -c 'until docker compose exec -T postgres pg_isready -U ${{ env.POSTGRES_USER }}; do sleep 2; done'
+
+      - name: Run migrations
+        env:
+          DATABASE_URL: postgresql+asyncpg://${{ env.POSTGRES_USER }}:${{ env.POSTGRES_PASSWORD }}@localhost:5432/${{ env.POSTGRES_DB }}
+        run: |
+          make migrate-create MSG="initial tables"
+          make migrate-up
 
       - name: Wait for API
         run: |
@@ -114,7 +129,7 @@ jobs:
       - name: Install Playwright
         working-directory: tests
         run: |
-          npm ci
+          npm install
           npx playwright install --with-deps
 
       - name: Run Playwright tests
@@ -123,7 +138,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: playwright-report
           path: tests/playwright-report/
