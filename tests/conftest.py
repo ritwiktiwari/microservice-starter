@@ -1,6 +1,8 @@
-import asyncio
 import os
-from collections.abc import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator
+
+# Disable OpenTelemetry for tests - MUST be before any app imports
+os.environ["OTEL_ENABLED"] = "false"
 
 import pytest
 from httpx import ASGITransport, AsyncClient
@@ -26,16 +28,8 @@ TestSessionLocal = async_sessionmaker(
 )
 
 
-@pytest.fixture(scope="session")
-def event_loop() -> Generator[asyncio.AbstractEventLoop]:
-    """Create event loop for tests."""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-
 @pytest.fixture(scope="function")
-async def db_session() -> AsyncGenerator[AsyncSession]:
+async def db_session() -> AsyncGenerator[AsyncSession, None]:
     """Create test database session."""
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -48,10 +42,10 @@ async def db_session() -> AsyncGenerator[AsyncSession]:
 
 
 @pytest.fixture(scope="function")
-async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
     """Create test client."""
 
-    async def override_get_db() -> AsyncGenerator[AsyncSession]:
+    async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db

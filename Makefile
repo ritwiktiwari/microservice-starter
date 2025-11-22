@@ -30,7 +30,7 @@ format:
 	uv run ruff check --fix .
 
 test:
-	uv run pytest
+	PYTHONPATH=. uv run pytest
 
 test-cov:
 	PYTHONPATH=. uv run pytest --cov=app --cov-report=html --cov-report=term
