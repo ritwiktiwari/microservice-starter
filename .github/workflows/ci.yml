@@ -109,7 +109,7 @@ jobs:
       - name: Run migrations
         env:
           DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test
-        run: uvx alembic upgrade head
+        run: uv run alembic upgrade head
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
