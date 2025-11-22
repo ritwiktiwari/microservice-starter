@@ -29,7 +29,7 @@ TestSessionLocal = async_sessionmaker(
 
 
 @pytest.fixture(scope="function")
-async def db_session() -> AsyncGenerator[AsyncSession, None]:
+async def db_session() -> AsyncGenerator[AsyncSession]:
     """Create test database session."""
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
@@ -42,10 +42,10 @@ async def db_session() -> AsyncGenerator[AsyncSession, None]:
 
 
 @pytest.fixture(scope="function")
-async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient, None]:
+async def client(db_session: AsyncSession) -> AsyncGenerator[AsyncClient]:
     """Create test client."""
 
-    async def override_get_db() -> AsyncGenerator[AsyncSession, None]:
+    async def override_get_db() -> AsyncGenerator[AsyncSession]:
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db

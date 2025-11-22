@@ -78,7 +78,7 @@ jobs:
         env:
           DATABASE_URL: postgresql+asyncpg://test:test@localhost:5432/test
           REDIS_URL: redis://localhost:6379/0
-        run: uv run pytest
+        run: make test
 
       - name: Upload coverage
         uses: codecov/codecov-action@v3
