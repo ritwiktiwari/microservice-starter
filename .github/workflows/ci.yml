@@ -28,7 +28,7 @@ jobs:
         run: uv run ruff format --check .
 
       - name: Run Pyrefly type check
-        run: pyrefly check app/
+        run: uvx pyrefly check .
 
   test:
     runs-on: ubuntu-latest
