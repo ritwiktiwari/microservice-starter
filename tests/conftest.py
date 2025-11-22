@@ -1,4 +1,5 @@
 import asyncio
+import os
 from collections.abc import AsyncGenerator, Generator
 
 import pytest
@@ -9,11 +10,15 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
 
-# Test database URL
-TEST_DATABASE_URL = "postgresql+asyncpg://test:test@localhost:5432/test"
+# Test database URL - use SQLite for tests if PostgreSQL not available
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 
 # Create test engine
-test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+test_engine = create_async_engine(
+    TEST_DATABASE_URL,
+    echo=False,
+    connect_args={"check_same_thread": False} if "sqlite" in TEST_DATABASE_URL else {},
+)
 TestSessionLocal = async_sessionmaker(
     test_engine,
     class_=AsyncSession,

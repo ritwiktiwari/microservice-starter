@@ -31,6 +31,7 @@ dev = [
     "ruff>=0.1.9",
     "pyrefly>=0.41.2",
     "locust>=2.42.2",
+    "aiosqlite>=0.19.0",
 ]
 
 
@@ -66,6 +67,7 @@ python-platform = "darwin"
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+pythonpath = ["."]
 python_files = "test_*.py"
 python_functions = "test_*"
-addopts = "--cov=app --cov-report=term-missing --cov-report=html"
+addopts = "--cov=app --cov-report=term-missing --cov-report=html --cov-report=xml"

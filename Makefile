@@ -33,7 +33,7 @@ test:
 	uv run pytest
 
 test-cov:
-	uv run pytest --cov=app --cov-report=html --cov-report=term
+	PYTHONPATH=. uv run pytest --cov=app --cov-report=html --cov-report=term
 
 migrate-create:
 	uv run alembic revision --autogenerate -m "$(MSG)"
